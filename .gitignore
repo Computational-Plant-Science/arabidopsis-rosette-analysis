@@ -19,6 +19,6 @@ data*
 input
 output*
 dist/
-core/__pycache__/
+spg/__pycache__/
 *.egg-info
 .eggs/

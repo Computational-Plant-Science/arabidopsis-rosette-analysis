@@ -1,7 +1,7 @@
 from typing import List
 import cv2
 
-from core.popos import InputImage
+from spg.popos import InputImage
 
 
 # get weight value based on liner interpolation

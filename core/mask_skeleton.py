@@ -36,30 +36,6 @@ from skan import Skeleton, summarize, draw
 
 
 
-# generate foloder to store the output results
-def mkdir(path):
-    # import module
-    import os
- 
-    # remove space at the beginning
-    path=path.strip()
-    # remove slash at the end
-    path=path.rstrip("\\")
- 
-    # path exist?   # True  # False
-    isExists=os.path.exists(path)
- 
-    # process
-    if not isExists:
-        # construct the path and folder
-        print (path + ' folder constructed!')
-        # make dir
-        os.makedirs(path)
-        return True
-    else:
-        # if exists, return 
-        print (path+' path exists!')
-        return False
         
 
 

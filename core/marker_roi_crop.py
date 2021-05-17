@@ -39,7 +39,7 @@ import openpyxl
 from pathlib import Path
 
 # generate foloder to store the output results
-from options import ImageInput
+from popos import InputImage
 
 
 TEMPLATE_PATH = "/opt/spg-topdown-traits/marker_template/template.png"
@@ -70,9 +70,9 @@ def mkdir(path):
         return False
 
 
-def circle_detect(options: ImageInput):
+def circle_detect(options: InputImage):
     # load the image, clone it for output, and then convert it to grayscale
-    img_ori = cv2.imread(options.input_file)
+    img_ori = cv2.imread(options.path)
     img_rgb = img_ori.copy()
 
     # Convert it to grayscale 
@@ -109,9 +109,9 @@ def circle_detect(options: ImageInput):
 
         crop_img = img_rgb[y + 150:y + 850, x - 700:x]
         # save segmentation result
-        cv2.imwrite(join(options.output_directory, f"{options.input_stem}.cropped.png"), crop_img)
+        cv2.imwrite(join(options.output_directory, f"{options.stem}.cropped.png"), crop_img)
 
-    return options.input_name, (x, y), crop_img
+    return options.name, (x, y), crop_img
 
 
 if __name__ == '__main__':
@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
     # Accquire image file list
     imgList = sorted(glob.glob(image_file_path))
-    options = [ImageInput(input_file=file, output_directory=output_dir) for file in imgList]
+    options = [InputImage(input_path=file, output_directory=output_dir) for file in imgList]
 
     # Read the template
     template = cv2.imread(TEMPLATE_PATH, 0)

@@ -1,73 +1,17 @@
-"""
-Version: 1.0
-Summary: color clustering alogrithm, designed for analysis color distributation in plant image
-Author: suxing liu
-Author-email: suxingliu@gmail.com
-
-USAGE
-
-import utils
-# using as a library
-
-"""
-#!/usr/bin/python
-
-
-# import the necessary packages
 import csv
+import os
 from os.path import join
 from typing import List
 
 import cv2
 import matplotlib.colors as colors
 import numpy as np
+import openpyxl
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 from tabulate import tabulate
 
-from core.results import ImageResult
-
-
-def write_results(output_directory: str, results: List[ImageResult]):
-    headers = ['filename', 'failed', 'area', 'solidity', 'max_width', 'max_height', 'avg_curv', 'n_leaves']
-    results = [(result.id, result.failed, result.area, result.solidity, result.max_width, result.max_height, result.avg_curve, result.n_leaves) for result in results]
-    table = tabulate(results, headers=headers, tablefmt='orgtbl')
-    print(table)
-
-    traits_csv = join(output_directory, 'traits.csv')
-    with open(traits_csv, 'a+') as file:
-
-        char = file.read(1)
-        file.seek(0)
-        if not char:
-            writer = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(headers)
-
-        for row in results:
-            writer = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(row)
-
-    # traits_xslx = join(output_directory, 'traits.xlsx')
-
-    # if isfile(traits_xslx):
-    #     wb = openpyxl.load_workbook(traits_xslx)
-    #     sheet = wb.active
-    # else:
-    #     wb = openpyxl.Workbook()
-    #     sheet = wb.active
-
-    #     sheet.cell(row=1, column=1).value = 'filename'
-    #     sheet.cell(row=1, column=2).value = 'leaf_area'
-    #     sheet.cell(row=1, column=3).value = 'solidity'
-    #     sheet.cell(row=1, column=4).value = 'max_width'
-    #     sheet.cell(row=1, column=5).value = 'max_height'
-    #     sheet.cell(row=1, column=6).value = 'curvature'
-    #     sheet.cell(row=1, column=7).value = 'number_leaf'
-
-    # for row in results:
-    #     sheet.append(row)
-
-    # wb.save(traits_xslx)
+from core.popos import TraitsResult, LuminosityResult
 
 
 # Function of rgb to hex color space
@@ -274,4 +218,108 @@ def plot_color_bar(path, bar):
     plt.savefig(complete_path)
     plt.close(fig)
 
-    
+
+def write_luminosity_results_to_csv(results: List[LuminosityResult], output_directory: str):
+    result_file = join(output_directory, 'luminous_detection.csv')
+
+    with open(result_file, 'a+') as file:
+        writer = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        keys = list(results[0].keys())
+
+        if os.stat(result_file).st_size == 0:
+            writer.writerow(keys)
+
+        for result in results:
+            writer.writerow(list(result.values()))
+
+
+def write_luminosity_results_to_excel(results: List[LuminosityResult], output_directory: str):
+    result_file = join(output_directory, 'luminous_detection.xlsx')
+
+    if os.path.isfile(result_file):
+        wb = openpyxl.load_workbook(result_file)
+        sheet = wb.active
+    else:
+        wb = openpyxl.Workbook()
+        sheet = wb.active
+        keys = list(results[0].keys())
+
+        for i in range(3):
+            sheet.cell(row=1, column=i + 1).value = keys[i]
+
+    for result in results:
+        sheet.append(list(result.values()))
+
+    wb.save(result_file)
+
+
+def write_traits_results_to_csv(results: List[TraitsResult], output_directory: str):
+    result_file = join(output_directory, 'traits.csv')
+
+    with open(result_file, 'a+') as file:
+        writer = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        keys = list(results[0].keys())
+
+        if os.stat(result_file).st_size == 0:
+            writer.writerow(keys)
+
+        for result in results:
+            writer.writerow(list(result.values()))
+
+
+def write_traits_results_to_excel(results: List[TraitsResult], output_directory: str):
+    result_file = join(output_directory, 'traits.xlsx')
+
+    if os.path.isfile(result_file):
+        wb = openpyxl.load_workbook(result_file)
+        sheet = wb.active
+    else:
+        wb = openpyxl.Workbook()
+        sheet = wb.active
+        keys = list(results[0].keys())
+
+        for i in range(7):
+            sheet.cell(row=1, column=i + 1).value = keys[i]
+
+    for result in results:
+        sheet.append(list(result.values()))
+
+    wb.save(result_file)
+
+
+def outlier_double_mad(data, thresh=3.5):
+    """
+    FOR ASYMMETRIC DISTRIBUTION
+    Returns : filtered array excluding the outliers
+
+    Parameters : the actual data Points array
+
+    Calculates median to divide data into 2 halves.(skew conditions handled)
+    Then those two halves are treated as separate data with calculation same as for symmetric distribution.(first answer)
+    Only difference being , the thresholds are now the median distance of the right and left median with the actual data median
+
+    Warning: this function does not check for NAs,
+    nor does it address issues when more than 50% of your data have identical values
+    """
+
+    m = np.median(data)
+    abs_dev = np.abs(data - m)
+    left_mad = np.median(abs_dev[data <= m])
+    right_mad = np.median(abs_dev[data >= m])
+    data_mad = left_mad * np.ones(len(data))
+    data_mad[data > m] = right_mad
+    modified_z_score = 0.6745 * abs_dev / data_mad
+    modified_z_score[data == m] = 0
+    return modified_z_score > thresh
+
+
+def get_cmap(n, name='hsv'):
+    """
+    Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
+    RGB color; the keyword argument name must be a standard mpl colormap name.
+    """
+    return plt.cm.get_cmap(name, n)
+
+
+def rgb2hex(color):
+    return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))

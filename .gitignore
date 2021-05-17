@@ -14,12 +14,11 @@ utils.pyc
 *test/
 .cache/*
 tools/__pycache__/
-data
 dark
 data*
 input
-output
-output2
+output*
 dist/
 core/__pycache__/
 *.egg-info
+.eggs/

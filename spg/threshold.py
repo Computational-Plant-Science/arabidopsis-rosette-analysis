@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+
 def simple_threshold(image: np.ndarray, threshold: int = 90, invert: bool = False) -> np.ndarray:
     if threshold < 0 or threshold > 255:
         raise ValueError(f"Threshold must be between 0 and 255")

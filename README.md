@@ -1,4 +1,4 @@
-# Smart plant growth
+# Smart Plant Growth: Leaf Segmentation & Traits
 
 Author: Suxing Liu
 

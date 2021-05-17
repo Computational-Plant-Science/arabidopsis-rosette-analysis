@@ -5,7 +5,7 @@ import numpy as np
 from skimage.segmentation import clear_border
 from sklearn.cluster import KMeans
 
-from spg.thresholding import otsu_threshold
+from spg.threshold import otsu_threshold
 
 warnings.filterwarnings("ignore")
 

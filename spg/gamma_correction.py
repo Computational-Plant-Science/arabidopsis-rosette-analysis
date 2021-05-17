@@ -1,66 +1,14 @@
-"""
-Version: 1.5
-
-Summary: Automatic image brightness adjustment based on gamma correction method
-
-Author: suxing liu
-
-Author-email: suxingliu@gmail.com
-
-USAGE:
-
-python3 gamma_correction.py -p ~/plant-image-analysis/test/ -ft jpg 
-
-argument:
-("-p", "--path", required = True,    help="path to image file")
-("-ft", "--filetype", required=True,    help="Image filetype") 
-
-"""
-
-#!/usr/bin/python
-# Standard Libraries
-
-import os,fnmatch
 import argparse
-import shutil
-import cv2
-
-import numpy as np
-
 import glob
-
-
 import multiprocessing
-from multiprocessing import Pool
-from contextlib import closing
-
+import os
 import resource
+from contextlib import closing
+from multiprocessing import Pool
+from pathlib import Path
 
-
-# create result folder
-def mkdir(path):
-    # import module
-    #import os
- 
-    # remove space at the beginning
-    path=path.strip()
-    # remove slash at the end
-    path=path.rstrip("\\")
- 
-    # path exist?   # True  # False
-    isExists=os.path.exists(path)
- 
-    # process
-    if not isExists:
-        # construct the path and folder
-        #print path + ' folder constructed!'
-        # make dir
-        os.makedirs(path)
-        return True
-    else:
-        # if exists, return 
-        #print path+' path exists!'
-        return False
+import cv2
+import numpy as np
 
 
 #adjust the gamma value to increase the brightness of image
@@ -162,7 +110,7 @@ if __name__ == '__main__':
     parent_path = os.path.abspath(os.path.join(file_path, os.pardir))
     #mkpath = parent_path + '/' + str('gamma_correction')
     mkpath = file_path + '/' + str('gamma_correction')
-    mkdir(mkpath)
+    Path(mkpath).mkdir(exist_ok=True)
     save_path = mkpath + '/'
 
     #print "results_folder: " + save_path  
@@ -180,15 +128,7 @@ if __name__ == '__main__':
     with closing(Pool(processes = agents)) as pool:
         result = pool.map(gamma_correction, imgList)
         pool.terminate()
-    
-      
-    # monitor memory usage 
-    rusage_denom = 1024.0
-    
-    print("Memory usage: {0} MB\n".format(int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / rusage_denom)))
-    
 
-    
 
     
 

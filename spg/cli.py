@@ -6,7 +6,7 @@ import click
 
 from spg.luminosity_detection import filter_dark_images
 from spg.popos import InputImage, SPGOptions
-from spg.trait_extract_parallel import trait_extract
+from spg.extract import trait_extract
 from spg.utils import write_traits_results_to_csv
 
 

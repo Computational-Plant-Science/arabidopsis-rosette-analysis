@@ -18,6 +18,23 @@ class InputImage:
         self.stem = Path(input_path).stem
 
 
+class LuminosityResult(TypedDict, total=True):
+    name: str
+    avg: float
+    decision: str
+
+
+class TraitsResult(TypedDict, total=True):
+    name: str
+    failed: bool
+    area: float
+    solidity: float
+    max_width: int
+    max_height: int
+    avg_curve: float
+    n_leaves: int
+
+
 class SPGOptions:
     def __init__(self, input_images: List[InputImage], output_directory: str, luminosity_threshold: float, multiprocessing: bool):
         if len(input_images) == 0:
@@ -36,20 +53,3 @@ class SPGOptions:
         self.output_directory = output_directory
         self.luminosity_threshold = luminosity_threshold
         self.multiprocessing = multiprocessing
-
-
-class LuminosityResult(TypedDict, total=True):
-    name: str
-    avg: float
-    decision: str
-
-
-class TraitsResult(TypedDict, total=True):
-    name: str
-    failed: bool
-    area: float
-    solidity: float
-    max_width: int
-    max_height: int
-    avg_curve: float
-    n_leaves: int

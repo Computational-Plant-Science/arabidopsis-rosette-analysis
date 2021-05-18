@@ -1,5 +1,5 @@
 """
-"Plain old Python objects"
+plain old Python objects
 """
 
 from pathlib import Path
@@ -31,8 +31,8 @@ class TraitsResult(TypedDict, total=True):
     solidity: float
     max_width: int
     max_height: int
-    avg_curve: float
-    n_leaves: int
+    avg_curvature: float
+    leaves: int
 
 
 class SPGOptions:

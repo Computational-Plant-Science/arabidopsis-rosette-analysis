@@ -16,10 +16,10 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: plantit-dev
-          SLACK_ICON: https://raw.githubusercontent.com/Computational-Plant-Science/spg-topdown-traits/master/rosette_logo.jpg
+          SLACK_ICON: https://raw.githubusercontent.com/Computational-Plant-Science/spg/master/rosette_logo.jpg
           SLACK_MESSAGE: 'Build started'
-          SLACK_TITLE: "Smart Plant Growth: Top-Down Traits"
-          SLACK_USERNAME: spg-topdown-traits
+          SLACK_TITLE: "Smart Plant Growth: Leaf Segmentation & Traits"
+          SLACK_USERNAME: spg
   publish:
     runs-on: ubuntu-latest
     strategy:
@@ -59,7 +59,7 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_CHANNEL: plantit-dev
-          SLACK_ICON: https://raw.githubusercontent.com/Computational-Plant-Science/spg-topdown-traits/master/rosette_logo.jpg
+          SLACK_ICON: https://raw.githubusercontent.com/Computational-Plant-Science/spg/master/rosette_logo.jpg
           SLACK_MESSAGE: 'Build succeeded'
-          SLACK_TITLE: 'Smart Plant Growth: Top-Down Traits'
-          SLACK_USERNAME: spg-topdown-traits
+          SLACK_TITLE: 'Smart Plant Growth: Leaf Segmentation & Traits'
+          SLACK_USERNAME: spg

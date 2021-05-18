@@ -1,13 +1,14 @@
+import time
 from glob import glob
 from os.path import join
 from pathlib import Path
 
 import click
 
-from spg.luminosity_detection import filter_dark_images
+from spg.luminosity import filter_dark_images
 from spg.popos import InputImage, SPGOptions
-from spg.extract import trait_extract
-from spg.utils import write_traits_results_to_csv
+from spg.extract import extract_traits
+from spg.utils import write_traits_results_to_csv, write_traits_results_to_excel
 
 
 @click.group()
@@ -22,6 +23,7 @@ def cli():
 @click.option('-l', '--luminosity_threshold', required=False, type=float, default=0.1)
 @click.option('-m', '--multiprocessing', is_flag=True)
 def extract(source, output_directory, file_types, luminosity_threshold, multiprocessing):
+    start = time.time()
     Path(output_directory).mkdir(parents=True, exist_ok=True)
 
     if Path(source).is_file():
@@ -29,7 +31,7 @@ def extract(source, output_directory, file_types, luminosity_threshold, multipro
 
         # run analysis
         filter_dark_images(options)
-        traits_results = trait_extract(options)
+        traits_results = extract_traits(options)
         write_traits_results_to_csv(traits_results, options.output_directory)
     elif Path(source).is_dir():
         # parse filetypes
@@ -52,10 +54,15 @@ def extract(source, output_directory, file_types, luminosity_threshold, multipro
 
         # run analysis
         filter_dark_images(options)
-        traits_results = trait_extract(options)
+        traits_results = extract_traits(options)
         write_traits_results_to_csv(traits_results, options.output_directory)
     else:
         raise ValueError(f"Path does not exist: {source}")
+
+    write_traits_results_to_csv(traits_results, options.output_directory)
+    write_traits_results_to_excel(traits_results, options.output_directory)
+    complete = time.time()
+    print(f"Finished in {start - complete}")
 
 
 if __name__ == '__main__':

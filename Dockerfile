@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 LABEL maintainer="Suxing Liu, Wes Bonelli"
 
-COPY . /opt/spg-topdown-traits
+COPY . /opt/spg
 
 RUN apt-get update && \
     apt-get install -y \
@@ -14,10 +14,11 @@ RUN apt-get update && \
     libsm6 \
     libxext6 \
     libfontconfig1 \
-    libxrender1
+    libxrender1 \
+    libgtk2.0-dev
 
 RUN pip3 install --upgrade pip && \
-    pip3 install -e /opt/spg-topdown-traits
+    pip3 install -e /opt/spg
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8

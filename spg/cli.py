@@ -50,7 +50,7 @@ def extract(source, output_directory, file_types, luminosity_threshold, multipro
         files = sum((sorted(glob(join(source, f"*.{file_type}"))) for file_type in fts), [])
         inputs = [InputImage(input_path=file) for file in files]
         options = SPGOptions(inputs, output_directory, luminosity_threshold, multiprocessing)
-        print(f"Found {len(files)} input files with extensions {', '.join(fts)}: \n" + '\n'.join(files))
+        print(f"Found {len(files)} input files with extension in: {', '.join(fts)}: \n" + '\n'.join(files))
 
         # run analysis
         filter_dark_images(options)

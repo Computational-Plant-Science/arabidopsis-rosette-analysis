@@ -1,15 +1,14 @@
 # Smart Plant Growth: Leaf Segmentation & Traits
 
-Author: Suxing Liu
-
 ![CI](https://github.com/Computational-Plant-Science/spg-topdown-traits/workflows/CI/badge.svg)
 [![PyPI version](https://badge.fury.io/py/spg-topdown-traits.svg)](https://badge.fury.io/py/spg-topdown-traits)
 
-Robust and parameter-free plant image segmentation and trait extraction.
+Robust, parameter-free leaf segmentation and trait extraction. Developed by Suxing Liu.
 
-1. Process with plant image top view, including whole tray plant image, this tool will segment it into individual images.
-2. Robust segmentation based on parameter-free color clustering method.
-3. Extract individual plant gemetrical traits, and write output into excel file.
+- Segment and analyze top-view images of individual plants or a whole tray.
+- Robust segmentation based on color clustering method.
+- Parameters configurable if desired, but not necessary.
+- Extract individual plant geometric traits and write output to CSV/Excel files.
 
 ![Optional Text](../master/media/image_01.png)
 
@@ -19,7 +18,12 @@ Robust and parameter-free plant image segmentation and trait extraction.
 
 - [Requirements](#requirements)
 - [Usage](#usage)
-  - [Multiprocessing](#multiprocessing)
+  - [Parameter-free](#parameter-free)
+  - [With (optional) parameters](#with-optional-parameters)
+    - [Output directory](#output-directory)
+    - [Luminosity threshold](#luminosity-threshold)
+    - [Clusters](#clusters)
+    - [Multiprocessing](#multiprocessing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -37,21 +41,27 @@ Singularity users:
 
 ## Usage
 
-A typical use case might look like:
+### Parameter-free
 
-`spg extract <input directory> -o <output directory> -l 0.1 -t /opt/spg-topdown-traits/marker_template.png -m`
+To extract traits from a directory of images with default parameters (suitable for typical use cases), run `spg extract <input directory>`.
+
+By default, output files will be deposited in the working directory.
+
+### With (optional) parameters
+
+A number of parameters can be configured if desired.
 
 #### Output directory
 
-By default, output files will be written to the current working directory. To provide a different path, use the `-o` option.
+To provide a path to a custom directory for output files and artifacts, use the `-o` option.
 
 #### Luminosity threshold
 
-The `-l 0.1` option sets a luminosity threshold of 10%. Images darker than this will not be processed.
+The `--luminosity_threshold` option sets the lowest permissible average luminosity. For instance, use `-l 0.1` to set a luminosity threshold of 10%. Images darker (on average) than this will not be processed.
 
-#### Marker template
+#### Clusters
 
-You must provide a marker template image to use `spg-topdown-traits`. By default, an image named `marker_template.png` is expected in the working directory. You can also provide a different image path with the `-t (--template)` argument. A template is provided in the Docker image at `/opt/spg-topdown-traits/marker_template.png`.
+The `--clusters` option configures the number of K-means clusters to use when computing leaf contours. For instance, use `-c 5` for 5 clusters.
 
 #### Multiprocessing
 

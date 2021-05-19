@@ -35,8 +35,59 @@ class TraitsResult(TypedDict, total=True):
     leaves: int
 
 
-class SPGOptions:
-    def __init__(self, input_images: List[InputImage], output_directory: str, luminosity_threshold: float, clusters: int, multiprocessing: bool):
+class LuminosityOptions:
+    def __init__(self, threshold: float):
+        if threshold <= 0 or threshold >= 1:
+            raise ValueError(f"Luminosity threshold must be between 0 and 1")
+
+        self.threshold = threshold
+
+
+class EnhancementOptions:
+    def __init__(self, brightness: int, gamma: int):
+        self.brightness = brightness
+        self.gamma = gamma
+
+
+class CroppingOptions:
+    def __init__(self, template: str):
+        if not Path(template).is_file():
+            raise ValueError(f"Template file does not exist: {template}")
+
+        self.template = template
+
+
+class SkeletonizationOptions:
+    def __init__(self):
+        pass
+
+
+class SegmentationOptions:
+    def __init__(self, color_space: str, channels: str, num_clusters: int):
+        if color_space is None or color_space not in ['lab', 'bgr', 'hsv', 'ycc']:
+            raise ValueError(f"Color space must be one of the following: 'lab', 'bgr', 'hsv', 'ycc'")
+
+        if num_clusters < 1:
+            raise ValueError(f"Must use at least 1 cluster for K-means clustering")
+
+        self.color_space = color_space
+        self.channels = channels
+        self.num_clusters = num_clusters
+
+
+class TraitsOptions:
+    def __init__(
+            self,
+            input_images: List[InputImage],
+            output_directory: str,
+            multiprocessing: bool,
+            luminosity_threshold: float,
+            # brightness_enhancement: int,
+            # gamma_enhancement: int,
+            # marker_template: str,
+            color_space: str,
+            channels: str,
+            num_clusters: int):
         if len(input_images) == 0:
             raise ValueError(f"No input images provided")
 
@@ -51,6 +102,8 @@ class SPGOptions:
 
         self.input_images = input_images
         self.output_directory = output_directory
-        self.luminosity_threshold = luminosity_threshold
-        self.clusters = clusters
         self.multiprocessing = multiprocessing
+        self.luminosity_options = LuminosityOptions(threshold=luminosity_threshold)
+        # self.enhancement_options = EnhancementOptions(brightness=brightness_enhancement, gamma=gamma_enhancement)
+        # self.cropping_options = CroppingOptions(template=marker_template)
+        self.segmentation_options = SegmentationOptions(color_space=color_space, channels=channels, num_clusters=num_clusters)

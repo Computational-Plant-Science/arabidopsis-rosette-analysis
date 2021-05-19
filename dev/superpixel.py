@@ -67,7 +67,7 @@ img = cv2.imread(args["image"])
 
 #img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 
-label = segmentation.slic(img, compactness = 10, n_segments = 10)
+label = segment.slic(img, compactness = 10, n_segments = 10)
 
 output = mean_image(img,label)
 

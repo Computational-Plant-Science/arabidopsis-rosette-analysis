@@ -107,7 +107,7 @@ def image_label(image_file):
     labeled_img[label_hue==0] = 0
 
     #define result path for labeled images
-    result_img_path = save_path_label + str(filename[0:-4]) + '_label.jpg'
+    result_img_path = save_path_label + str(filename[0:-4]) + '.label.jpg'
 
     # save results
     cv2.imwrite(result_img_path,labeled_img)
@@ -126,7 +126,7 @@ def image_label(image_file):
         mask = np.zeros(gray.shape, dtype="uint8")
         mask[labels == label] = 255
         
-        #define result path for simplified segmentation result
+        #define result path for simplified segment result
         result_img_path = save_path_ac + str(filename[0:-4]) + str(label) + '_ac.jpg'
         
         cv2.imwrite(result_img_path,mask)
@@ -145,7 +145,7 @@ def image_label(image_file):
 
     print("[INFO] {} unique segments found".format(count))
 
-    #define result path for simplified segmentation result
+    #define result path for simplified segment result
     result_img_path = save_path_ac + str(filename[0:-4]) + '_ac.jpg'
 
     #write out results
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     #print "results_folder: " + save_path_ac  
     
     # Run this with a pool of avaliable agents having a chunksize of 3 until finished
-    # run image labeling fucntion to accquire segmentation for each cross section image
+    # run image labeling fucntion to accquire segment for each cross section image
     agents = multiprocessing.cpu_count() - 2
     chunksize = 3
     with closing(Pool(processes = agents)) as pool:

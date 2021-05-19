@@ -40,14 +40,14 @@ def circle_detect(image_path, template_path):
         for pt in zip(*loc[::-1]):
             circle_overlay = cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0, 255, 255), 2)
 
-            # save segmentation result
+            # save segment result
         # result_file = (save_path + base_name + '_circle.' + args['filetype'])
         # print(result_file)
         # cv2.imwrite(result_file, circle_overlay)
 
         crop_img = img_rgb[y + 150:y + 850, x - 650:x]
 
-        # save segmentation result
+        # save segment result
         # result_file = (save_path + base_name + '_cropped.' + args['filetype'])
         # print(result_file)
         # cv2.imwrite(result_file, crop_img)

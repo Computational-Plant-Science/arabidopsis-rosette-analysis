@@ -14,9 +14,9 @@ from skimage import img_as_ubyte
 from skimage.color import rgb2lab, deltaE_cie76
 
 from spg.curvature import compute_curv
-from spg.popos import SPGOptions, TraitsResult, InputImage
-from spg.seg import color_cluster_seg, watershed_seg, individual_object_seg, comp_external_contour, color_region
-from spg.skel import skeleton_bw
+from spg.popos import TraitsOptions, TraitsResult, InputImage, SegmentationOptions
+from spg.segmentation import color_cluster_seg, watershed_seg, individual_object_seg, comp_external_contour, color_region
+from spg.skeletonization import skeleton_bw
 from spg.utils import outlier_double_mad
 
 warnings.filterwarnings("ignore")
@@ -24,18 +24,14 @@ warnings.filterwarnings("ignore")
 MB_FACTOR = float(1 << 20)
 
 
-def extract_traits_from_image(input_image: InputImage, output_directory: str, num_clusters: int = 5):
+def extract_traits_from_image(input_image: InputImage, output_directory: str, segmentation_options: SegmentationOptions):
     try:
         _, file_extension = os.path.splitext(input_image.name)
         file_size = os.path.getsize(input_image.path) / MB_FACTOR
 
         print("Segmenting plant object using automatic color clustering method")
-        if (file_size > 5.0):
+        if file_size > 5.0:
             print(f"It may take some time due to large file size ({file_size} MB)")
-
-        args_colorspace = 'lab'
-        args_channels = '1'
-        args_num_clusters = 2
 
         image = cv2.imread(input_image.path)
 
@@ -43,13 +39,13 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str, nu
         # _, circles, cropped = circle_detect(options)
         image_copy = image.copy()
 
-        # color clustering based plant object segmentation
-        segmented = color_cluster_seg(image_copy, args_colorspace, args_channels, args_num_clusters)
-        cv2.imwrite(join(output_directory, f"{input_image.stem}_seg{file_extension}"), segmented)
+        # color clustering based plant object segment
+        segmented = color_cluster_seg(image_copy, segmentation_options.color_space, segmentation_options.channels, segmentation_options.num_clusters)
+        cv2.imwrite(join(output_directory, f"{input_image.stem}.seg{file_extension}"), segmented)
 
         # save color quantization result
         # rgb_colors = color_quantization(image, thresh, save_path, num_clusters)
-        rgb_colors = color_region(image_copy, segmented, output_directory + '/', input_image.stem, num_clusters)
+        rgb_colors = color_region(image_copy, segmented, output_directory + '/', input_image.stem, segmentation_options.num_clusters)
 
         selected_color = rgb2lab(np.uint8(np.asarray([[rgb_colors[0]]])))
 
@@ -69,13 +65,13 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str, nu
 
             ###############################################
 
-        # accquire medial axis of segmentation mask
+        # accquire medial axis of segment mask
         # image_medial_axis = medial_axis_image(thresh)
 
         image_skeleton, skeleton = skeleton_bw(segmented)
 
         # save _skeleton result
-        cv2.imwrite(join(output_directory, f"{input_image.stem}_skeleton{file_extension}"), img_as_ubyte(image_skeleton))
+        cv2.imwrite(join(output_directory, f"{input_image.stem}.skeleton{file_extension}"), img_as_ubyte(image_skeleton))
 
         ###
         # ['skeleton-id', 'node-id-src', 'node-id-dst', 'branch-distance',
@@ -142,7 +138,7 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str, nu
         source_image = cv2.cvtColor(image_copy, cv2.COLOR_BGR2RGB)
         # img_overlay = draw.overlay_euclidean_skeleton_2d(source_image, branch_data, skeleton_color_source = 'branch-distance', skeleton_colormap = 'hsv')
         img_overlay = draw.overlay_euclidean_skeleton_2d(source_image, branch_data, skeleton_color_source='branch-type', skeleton_colormap='hsv')
-        plt.savefig(join(output_directory, f"{input_image.stem}_euclidean_graph_overlay{file_extension}"), transparent=True,
+        plt.savefig(join(output_directory, f"{input_image.stem}.euclidean_graph_overlay{file_extension}"), transparent=True,
                     bbox_inches='tight', pad_inches=0)
         plt.close()
 
@@ -168,18 +164,18 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str, nu
         # set background label to black
         labeled_img[label_hue == 0] = 0
         # plt.imsave(result_file, img_as_float(labels), cmap = "Spectral")
-        cv2.imwrite(join(output_directory, f"{input_image.stem}_label{file_extension}"), labeled_img)
+        cv2.imwrite(join(output_directory, f"{input_image.stem}.label{file_extension}"), labeled_img)
 
         (avg_curv, label_trait) = compute_curv(image_copy, labels)
 
         # save watershed result label image
-        cv2.imwrite(join(output_directory, f"{input_image.stem}_curv{file_extension}"), label_trait)
+        cv2.imwrite(join(output_directory, f"{input_image.stem}.curv{file_extension}"), label_trait)
 
         # find external contour
         (trait_img, area, solidity, max_width, max_height) = comp_external_contour(image_copy, segmented)
-        # save segmentation result
+        # save segment result
         # print(filename)
-        cv2.imwrite(join(output_directory, f"{input_image.stem}_excontour{file_extension}"), trait_img)
+        cv2.imwrite(join(output_directory, f"{input_image.stem}.excontour{file_extension}"), trait_img)
 
         n_leaves = int(len(np.unique(labels)) / 1 - 1)
 
@@ -187,22 +183,37 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str, nu
 
         # Path("/tmp/d/a.dat").name
 
-        return TraitsResult(name=input_image.stem, failed=False, area=area, solidity=solidity, max_width=max_width, max_height=max_height,
-                            avg_curvature=avg_curv, leaves=n_leaves)
+        return TraitsResult(
+            name=input_image.stem,
+            failed=False,
+            area=area,
+            solidity=solidity,
+            max_width=max_width,
+            max_height=max_height,
+            avg_curvature=avg_curv,
+            leaves=n_leaves)
     except:
         print(f"Error in trait extraction: {traceback.format_exc()}")
-        return TraitsResult(input_image.stem, True, None, None, None, None, None, None)
+        return TraitsResult(
+            name=input_image.stem,
+            failed=True,
+            area=0,
+            solidity=0,
+            max_width=0,
+            max_height=0,
+            avg_curvature=0,
+            leaves=0)
 
 
-def extract_traits(options: SPGOptions) -> List[TraitsResult]:
+def extract_traits(options: TraitsOptions) -> List[TraitsResult]:
     if options.multiprocessing:
         cpus = os.cpu_count()
         print(f"Using up to {cpus} processes to extract traits from {len(options.input_images)} image(s)")
         with closing(Pool(processes=cpus)) as pool:
-            traits_results = pool.starmap(extract_traits_from_image, [(img, options.output_directory, options.clusters) for img in options.input_images])
+            traits_results = pool.starmap(extract_traits_from_image, [(img, options.output_directory, options.segmentation_options) for img in options.input_images])
             pool.terminate()
     else:
         print(f"Using a single process to extract traits from {len(options.input_images)} image(s)")
-        traits_results = [extract_traits_from_image(img, options.output_directory, options.clusters) for img in options.input_images]
+        traits_results = [extract_traits_from_image(img, options.output_directory, options.segmentation_options) for img in options.input_images]
 
     return traits_results

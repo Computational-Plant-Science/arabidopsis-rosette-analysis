@@ -45,7 +45,7 @@ args = vars(ap.parse_args())
 orig = cv2.imread(args["image"])
 vis = np.zeros(orig.shape[:2], dtype="float")
 
-# load the image and apply SLIC superpixel segmentation to it via
+# load the image and apply SLIC superpixel segment to it via
 # scikit-image
 image = io.imread(args["image"])
 segments = slic(img_as_float(image), n_segments=args["segments"],    slic_zero=True)
@@ -92,7 +92,7 @@ cv2.destroyAllWindows()
 
 
 '''
-from skimage import data, segmentation, measure, color, img_as_float
+from skimage import data, segment, measure, color, img_as_float
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -104,9 +104,9 @@ args = vars(ap.parse_args())
 # load the image and convert it to a floating point data type
 image = img_as_float(io.imread(args["image"]))
 
-segments = segmentation.slic(image, n_segments=100, compactness=20)
+segments = segment.slic(image, n_segments=100, compactness=20)
 
-#segments = segmentation.slic(image, slic_zero=True)
+#segments = segment.slic(image, slic_zero=True)
 
 regions = measure.regionprops(segments)
 

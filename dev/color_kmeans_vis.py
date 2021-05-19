@@ -64,7 +64,7 @@ def color_quantization(image, mask):
     #change the color storage order
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
-    #apply the mask to get the segmentation of plant
+    #apply the mask to get the segment of plant
     masked_image = cv2.bitwise_and(image, image, mask = mask)
        
     # reshape the image to be a list of pixels
@@ -154,7 +154,7 @@ if __name__ == '__main__':
     # load mask image as grayscale
     im_gray = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
     
-    #extract the binary mask
+    #traits the binary mask
     (thresh, mask) = cv2.threshold(im_gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
    
     color_quantization(image,mask)
@@ -168,7 +168,7 @@ if __name__ == '__main__':
         (thresh, im_bw) = cv2.threshold(im_gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         #fill samll holes and area along edge of image
-        from skimage.segmentation import clear_border
+        from skimage.segment import clear_border
         
         # remove artifacts connected to image border
         cleared = im_bw.copy()

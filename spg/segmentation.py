@@ -12,13 +12,13 @@ from skimage.feature import peak_local_max
 from skimage.segmentation import clear_border, watershed
 from sklearn.cluster import KMeans
 
-from spg.threshold import otsu_threshold
+from spg.thresholding import otsu_threshold
 from spg.utils import get_cmap, rgb2hex
 
 
 def color_cluster_seg(image, args_colorspace, args_channels, args_num_clusters):
     """
-    K-means color clustering based segmentation. This is achieved
+    K-means color clustering based segment. This is achieved
     by converting the source image to a desired color space and
     running K-means clustering on only the desired channels,
     with the pixels being grouped into a desired number of clusters.
@@ -155,7 +155,7 @@ def individual_object_seg(orig, labels, save_path, base_name, file_extension, le
         masked = cv2.bitwise_and(orig, orig, mask=mask)
 
         if leaf_images:
-            result_img_path = (save_path + base_name + '_leaf_' + str(label) + file_extension)
+            result_img_path = (save_path + base_name + '.leaf_' + str(label) + file_extension)
             cv2.imwrite(result_img_path, masked)
 
 
@@ -256,7 +256,7 @@ def color_region(image, mask, output_directory, file_name, num_clusters):
     # grab image width and height
     (h, w) = image.shape[:2]
 
-    # apply the mask to get the segmentation of plant
+    # apply the mask to get the segment of plant
     masked_image_ori = cv2.bitwise_and(image, image, mask=mask)
 
     # define result path for labeled images

@@ -22,7 +22,7 @@ setuptools.setup(
             'spg = spg.cli:cli'
         ]
     },
-    python_requires='>=3.6.8',
+    python_requires='>=3.8.5',
     install_requires=[
         'click',
         'psutil',

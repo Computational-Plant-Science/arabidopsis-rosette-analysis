@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from tabulate import tabulate
 
-from spg.popos import InputImage, SPGOptions, LuminosityResult
+from spg.popos import InputImage, TraitsOptions, LuminosityResult
 from spg.utils import write_luminosity_results_to_csv, write_luminosity_results_to_excel
 
 
@@ -10,7 +10,7 @@ def check_luminosity(input_image: InputImage, threshold: float):
     orig = cv2.imread(input_image.path)
     copy = orig.copy()
 
-    # Convert color space to LAB format and extract L channel
+    # Convert color space to LAB format and traits L channel
     L, A, B = cv2.split(cv2.cvtColor(copy, cv2.COLOR_BGR2LAB))
 
     # Normalize L channel by dividing all pixel values with maximum pixel value
@@ -19,12 +19,12 @@ def check_luminosity(input_image: InputImage, threshold: float):
     return input_image.name, normalized, "bright" if normalized > threshold else "dark"
 
 
-def filter_dark_images(options: SPGOptions) -> SPGOptions:
-    print(f"Filtering images with average luminosity below {options.luminosity_threshold}")
+def filter_dark_images(options: TraitsOptions) -> TraitsOptions:
+    print(f"Filtering images with average luminosity below {options.luminosity_options.threshold}")
     results = []
 
     for input_image in options.input_images:
-        name, avg, decision = check_luminosity(input_image, options.luminosity_threshold)
+        name, avg, decision = check_luminosity(input_image, options.luminosity_options.threshold)
         results.append(LuminosityResult(name=name, avg=avg, decision=decision))
 
         # luminosity_str is either 'dark' or 'bright'

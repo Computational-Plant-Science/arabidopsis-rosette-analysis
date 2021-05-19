@@ -57,7 +57,7 @@
 #     # change the color storage order
 #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 #
-#     # apply the mask to get the segmentation of plant
+#     # apply the mask to get the segment of plant
 #     masked_image = cv2.bitwise_and(image, image, mask=mask)
 #
 #     # reshape the image to be a list of pixels

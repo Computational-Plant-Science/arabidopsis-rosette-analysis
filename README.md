@@ -31,13 +31,13 @@ Robust, parameter-free leaf segmentation and trait extraction. Developed by Suxi
 
 The easiest way to run this project in a Unix environment is with [Docker](https://www.docker.com/) or [Singularity ](https://sylabs.io/singularity/).
 
-For instance, to pull the `computationalplantscience/spg` image, mount the current working directory, and open a shell:
+For instance, to pull the `computationalplantscience/spg` image, mount the current working directory, and open a Docker shell:
 
 `docker run -it -v $(pwd):/opt/dev -w /opt/dev computationalplantscience/spg bash`
 
-Singularity users:
+With Singularity:
 
-`singularity shell docker://computationalplantscience/spg-topdown-traits`
+`singularity shell docker://computationalplantscience/spg`
 
 ## Usage
 
@@ -53,16 +53,16 @@ A number of parameters can be configured if desired.
 
 #### Output directory
 
-To provide a path to a custom directory for output files and artifacts, use the `-o` option.
+To provide a path to a custom directory for output files and artifacts, use the `--output_directory` (`-o`) option.
 
 #### Luminosity threshold
 
-The `--luminosity_threshold` option sets the lowest permissible average luminosity. For instance, use `-l 0.1` to set a luminosity threshold of 10%. Images darker (on average) than this will not be processed.
+The `--luminosity_threshold` option sets the lowest permissible average luminosity. For instance, use `-l 0.2` to set a luminosity threshold of 20%. Images darker (on average) than this will not be processed. The default value is `0.1`.
 
 #### Clusters
 
-The `--clusters` option configures the number of K-means clusters to use when computing leaf contours. For instance, use `-c 5` for 5 clusters.
+The `--clusters` (`-c`) option configures the number of K-means clusters to use when computing leaf contours. For instance, use `-c 5` for 8 clusters. The default value is `5`.
 
 #### Multiprocessing
 
-To allow the `extract` command to process images in parallel if multiple cores are available, use the `-m` flag.
+To allow the `extract` command to process images in parallel if multiple cores are available, use the `--multiprocessing` (`-m`) flag. Multiprocessing is disabled by default.

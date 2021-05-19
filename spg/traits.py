@@ -24,7 +24,7 @@ warnings.filterwarnings("ignore")
 MB_FACTOR = float(1 << 20)
 
 
-def extract_traits_from_image(input_image: InputImage, output_directory: str):
+def extract_traits_from_image(input_image: InputImage, output_directory: str, num_clusters: int = 5):
     try:
         _, file_extension = os.path.splitext(input_image.name)
         file_size = os.path.getsize(input_image.path) / MB_FACTOR
@@ -47,15 +47,13 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str):
         segmented = color_cluster_seg(image_copy, args_colorspace, args_channels, args_num_clusters)
         cv2.imwrite(join(output_directory, f"{input_image.stem}_seg{file_extension}"), segmented)
 
-        num_clusters = 5
         # save color quantization result
         # rgb_colors = color_quantization(image, thresh, save_path, num_clusters)
         rgb_colors = color_region(image_copy, segmented, output_directory + '/', input_image.stem, num_clusters)
 
         selected_color = rgb2lab(np.uint8(np.asarray([[rgb_colors[0]]])))
 
-        print("Color difference are : ")
-
+        print("Color difference are:")
         print(selected_color)
 
         color_diff = []
@@ -133,7 +131,7 @@ def extract_traits_from_image(input_image: InputImage, output_directory: str):
 
         # print(branch_type_list.count(1))
 
-        print("[INFO] {} branch end points found\n".format(branch_type_list.count(1)))
+        print(f"{branch_type_list.count(1)} branch end points found")
 
         # img_hist = branch_data.hist(column = 'branch-distance', by = 'branch-type', bins = 100)
         # result_file = (save_path + base_name + '_hist' + file_extension)
@@ -201,10 +199,10 @@ def extract_traits(options: SPGOptions) -> List[TraitsResult]:
         cpus = os.cpu_count()
         print(f"Using up to {cpus} processes to extract traits from {len(options.input_images)} image(s)")
         with closing(Pool(processes=cpus)) as pool:
-            traits_results = pool.starmap(extract_traits_from_image, [(img, options.output_directory) for img in options.input_images])
+            traits_results = pool.starmap(extract_traits_from_image, [(img, options.output_directory, options.clusters) for img in options.input_images])
             pool.terminate()
     else:
         print(f"Using a single process to extract traits from {len(options.input_images)} image(s)")
-        traits_results = [extract_traits_from_image(img, options.output_directory) for img in options.input_images]
+        traits_results = [extract_traits_from_image(img, options.output_directory, options.clusters) for img in options.input_images]
 
     return traits_results

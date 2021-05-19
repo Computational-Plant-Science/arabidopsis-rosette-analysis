@@ -1,4 +1,3 @@
-import warnings
 from collections import Counter
 from os.path import join
 
@@ -53,9 +52,6 @@ def color_cluster_seg(image, args_colorspace, args_channels, args_num_clusters):
 
     (width, height, n_channel) = image.shape
 
-    # print("image shape: \n")
-    # print(width, height, n_channel)
-
     # Flatten the 2D image array into an MxN feature vector, where M is the number of pixels and N is the dimension (number of channels).
     reshaped = image.reshape(image.shape[0] * image.shape[1], image.shape[2])
 
@@ -86,7 +82,6 @@ def color_cluster_seg(image, args_colorspace, args_channels, args_num_clusters):
     thresh = otsu_threshold(kmeansImage)
 
     if np.count_nonzero(thresh) > 0:
-
         thresh_cleaned_bw = clear_border(thresh)
     else:
         thresh_cleaned_bw = thresh
@@ -98,42 +93,27 @@ def color_cluster_seg(image, args_colorspace, args_channels, args_num_clusters):
     sizes = stats[1:, cv2.CC_STAT_AREA]
 
     Coord_left = stats[1:, cv2.CC_STAT_LEFT]
-
     Coord_top = stats[1:, cv2.CC_STAT_TOP]
-
     Coord_width = stats[1:, cv2.CC_STAT_WIDTH]
-
     Coord_height = stats[1:, cv2.CC_STAT_HEIGHT]
 
-    Coord_centroids = centroids
-
-    # print("Coord_centroids {}\n".format(centroids[1][1]))
-
-    # print("[width, height] {} {}\n".format(width, height))
-
     nb_components = nb_components - 1
-
     min_size = 1000
-
     max_size = width * height * 0.1
-
     img_thresh = np.zeros([width, height], dtype=np.uint8)
 
     for i in range(0, nb_components):
-
         if (sizes[i] >= min_size):
-
             if (Coord_left[i] > 1) and (Coord_top[i] > 1) and (Coord_width[i] - Coord_left[i] > 0) and (Coord_height[i] - Coord_top[i] > 0) and (
                     centroids[i][0] - width * 0.5 < 10) and (centroids[i][1] - height * 0.5 < 10):
                 img_thresh[output == i + 1] = 255
-                print("Foreground center found ")
+                print("Foreground center found")
 
             elif ((Coord_width[i] - Coord_left[i]) * 0.5 - width < 15) and (centroids[i][0] - width * 0.5 < 15) and (
                     centroids[i][1] - height * 0.5 < 15) and ((sizes[i] <= max_size)):
                 imax = max(enumerate(sizes), key=(lambda x: x[1]))[0] + 1
                 img_thresh[output == imax] = 255
-                print("Foreground max found ")
-
+                print("Foreground max found")
             else:
                 img_thresh[output == i + 1] = 255
 
@@ -182,29 +162,21 @@ def individual_object_seg(orig, labels, save_path, base_name, file_extension, le
 def comp_external_contour(orig, thresh):
     # find contours and get the external one
     contours, hier = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
     img_height, img_width, img_channels = orig.shape
-
     index = 1
 
     for c in contours:
-
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
 
         if w > img_width * 0.01 and h > img_height * 0.01:
-
             trait_img = cv2.drawContours(orig, contours, -1, (255, 255, 0), 1)
 
             # draw a green rectangle to visualize the bounding rect
             roi = orig[y:y + h, x:x + w]
-
-            print("ROI {} detected ...\n".format(index))
-            # result_file = (save_path +  str(index) + file_extension)
-            # cv2.imwrite(result_file, roi)
+            print(f"ROI: {index}")
 
             trait_img = cv2.rectangle(orig, (x, y), (x + w, y + h), (255, 255, 0), 3)
-
             index += 1
 
             '''
@@ -216,8 +188,10 @@ def comp_external_contour(orig, thresh):
             #draw a red 'nghien' rectangle
             trait_img = cv2.drawContours(orig, [box], 0, (0, 0, 255))
             '''
+
             # get convex hull
             hull = cv2.convexHull(c)
+
             # draw it in red color
             trait_img = cv2.drawContours(orig, [hull], -1, (0, 0, 255), 3)
 
@@ -246,12 +220,12 @@ def comp_external_contour(orig, thresh):
             '''
 
             area = cv2.contourArea(c)
-            print("Leaf area = {0:.2f}... \n".format(area))
+            print("Area: {0:.2f}".format(area))
 
             hull = cv2.convexHull(c)
             hull_area = cv2.contourArea(hull)
             solidity = float(area) / hull_area
-            print("solidity = {0:.2f}... \n".format(solidity))
+            print("Solidity: {0:.2f}".format(solidity))
 
             extLeft = tuple(c[c[:, :, 0].argmin()][0])
             extRight = tuple(c[c[:, :, 0].argmax()][0])
@@ -271,7 +245,8 @@ def comp_external_contour(orig, thresh):
             else:
                 trait_img = cv2.line(orig, extTop, extBot, (0, 255, 0), 2)
 
-            print("Width and height are {0:.2f},{1:.2f}... \n".format(w, h))
+            print("Width: {0:.2f}".format(w))
+            print("Height: {0:.2f}".format(h))
 
     return trait_img, area, solidity, w, h
 
@@ -346,32 +321,19 @@ def color_region(image, mask, output_directory, file_name, num_clusters):
     color_conversion = interp1d([0, 1], [0, 255])
 
     for cluster in range(num_clusters):
-
-        print("Processing Cluster{0} ...\n".format(cluster))
-        # print(clrs[cluster])
-        # print(color_conversion(clrs[cluster]))
-
+        print(f"Processing Cluster {cluster}")
         masked_image[labels_flat == cluster] = centers[cluster]
-
-        # print(centers[cluster])
 
         # convert back to original shape
         masked_image_rp = masked_image.reshape(image_RGB.shape)
-
-        # masked_image_BRG = cv2.cvtColor(masked_image, cv2.COLOR_RGB2BGR)
-        # cv2.imwrite('maksed.png', masked_image_BRG)
-
         gray = cv2.cvtColor(masked_image_rp, cv2.COLOR_BGR2GRAY)
 
         # threshold the image, then perform a series of erosions +
         # dilations to remove any small regions of noise
         thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)[1]
 
-        # thresh_cleaned = clear_border(thresh)
-
         cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
-        # c = max(cnts, key=cv2.contourArea)
 
         '''
         # compute the center of the contour area and draw a circle representing the center
@@ -383,24 +345,18 @@ def color_region(image, mask, output_directory, file_name, num_clusters):
         '''
 
         if not cnts:
-            print("findContours is empty")
+            print("No contours found")
         else:
-
-            # loop over the (unsorted) contours and draw them
-            for (i, c) in enumerate(cnts):
+            for (i, c) in enumerate(cnts):     # loop over the (unsorted) contours and draw them
                 result = cv2.drawContours(masked_image_rp, c, -1, color_conversion(np.random.random(3)), 2)
-                # result = cv2.drawContours(masked_image_rp, c, -1, color_conversion(clrs[cluster]), 2)
 
-            # result = result(np.where(result == 0)== 255)
             result[result == 0] = 255
-
             result_BRG = cv2.cvtColor(result, cv2.COLOR_RGB2BGR)
             result_img_path = join(output_directory, f"{file_name}.result.{cluster}.png")
             cv2.imwrite(result_img_path, result_BRG)
 
     counts = Counter(labels_flat)
-    # sort to ensure correct color percentage
-    counts = dict(sorted(counts.items()))
+    counts = dict(sorted(counts.items()))      # sort to ensure correct color percentage
 
     center_colors = centers
 
@@ -409,13 +365,8 @@ def color_region(image, mask, output_directory, file_name, num_clusters):
     hex_colors = [rgb2hex(ordered_colors[i]) for i in counts.keys()]
     rgb_colors = [ordered_colors[i] for i in counts.keys()]
 
-    # print(hex_colors)
-
     index_bkg = [index for index in range(len(hex_colors)) if hex_colors[index] == '#000000']
 
-    # print(index_bkg[0])
-
-    # print(counts)
     # remove background color
     del hex_colors[index_bkg[0]]
     del rgb_colors[index_bkg[0]]

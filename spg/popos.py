@@ -36,7 +36,7 @@ class TraitsResult(TypedDict, total=True):
 
 
 class SPGOptions:
-    def __init__(self, input_images: List[InputImage], output_directory: str, luminosity_threshold: float, multiprocessing: bool):
+    def __init__(self, input_images: List[InputImage], output_directory: str, luminosity_threshold: float, clusters: int, multiprocessing: bool):
         if len(input_images) == 0:
             raise ValueError(f"No input images provided")
 
@@ -52,4 +52,5 @@ class SPGOptions:
         self.input_images = input_images
         self.output_directory = output_directory
         self.luminosity_threshold = luminosity_threshold
+        self.clusters = clusters
         self.multiprocessing = multiprocessing

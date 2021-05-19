@@ -112,7 +112,7 @@ def compute_curv(orig, labels):
             print("lack of enough points to fit ellipse")
 
     if count > 0:
-        print('average curvature = {0:.2f}\n'.format(curv_sum / count))
+        print('Average curvature: {0:.2f}'.format(curv_sum / count))
     else:
         count = 1.0
 

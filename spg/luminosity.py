@@ -20,6 +20,7 @@ def check_luminosity(input_image: InputImage, threshold: float):
 
 
 def filter_dark_images(options: SPGOptions) -> SPGOptions:
+    print(f"Filtering images with average luminosity below {options.luminosity_threshold}")
     results = []
 
     for input_image in options.input_images:
@@ -30,7 +31,7 @@ def filter_dark_images(options: SPGOptions) -> SPGOptions:
         if decision == 'dark':
             options.input_images.remove(input_image)
 
-    print(tabulate(results, headers=list(results[0].keys()), tablefmt='orgtbl'))
+    print(tabulate(results, headers="keys", tablefmt='orgtbl'))
     write_luminosity_results_to_csv(results, options.output_directory)
     write_luminosity_results_to_excel(results, options.output_directory)
 

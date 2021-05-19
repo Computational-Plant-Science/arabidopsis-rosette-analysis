@@ -3,7 +3,7 @@
 ![CI](https://github.com/Computational-Plant-Science/spg-topdown-traits/workflows/CI/badge.svg)
 [![PyPI version](https://badge.fury.io/py/spg-topdown-traits.svg)](https://badge.fury.io/py/spg-topdown-traits)
 
-Robust, parameter-free leaf segmentation and trait extraction. Developed by Suxing Liu.
+Robust, parameter-free leaf segmentation and trait extraction. Developed by **Suxing Liu**.
 
 - Segment and analyze top-view images of individual plants or a whole tray.
 - Robust segmentation based on color clustering method.
